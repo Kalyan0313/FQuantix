@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+/dist/
+backend/dist/
+backend/node_modules/
+
+# Environment files
+.env
+backend/.env
+
+# Local Databases (SQLite fallbacks)
+*.db
+*.db-journal
+backend/*.db
+backend/*.db-journal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

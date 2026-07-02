@@ -1,0 +1,82 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  portfolio Portfolio?
+  orders    Order[]
+  watchlist Watchlist?
+}
+
+model Portfolio {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Float     @default(1000000.0) // Virtual Cash Balance (Default: ₹10,00,000)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  holdings  Holding[]
+}
+
+model Holding {
+  id          String    @id @default(uuid())
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  ticker      String    // e.g., AAPL, BTC
+  name        String    // e.g., Apple Inc., Bitcoin
+  assetType   String    // STOCK or CRYPTO
+  quantity    Float     // Number of shares/coins
+  avgBuyPrice Float     // Average buy price
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([portfolioId, ticker])
+}
+
+model Order {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticker      String
+  name        String
+  assetType   String   // STOCK or CRYPTO
+  orderType   String   // BUY or SELL
+  quantity    Float
+  price       Float    // Execution price
+  totalAmount Float    // quantity * price
+  status      String   // PENDING, COMPLETED, FAILED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Watchlist {
+  id        String          @id @default(uuid())
+  userId    String          @unique
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     WatchlistItem[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model WatchlistItem {
+  id          String    @id @default(uuid())
+  watchlistId String
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  ticker      String
+  name        String
+  assetType   String    // STOCK or CRYPTO
+  createdAt   DateTime  @default(now())
+
+  @@unique([watchlistId, ticker])
+}
